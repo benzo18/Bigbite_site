@@ -52,7 +52,7 @@ const PlaceOrder = () => {
         // Get the session URL from the response data
         const { sessionUrl } = response.data;
         console.log("Received session URL:", sessionUrl); // Log the session URL
-        debugger;
+      
         // Redirect the user to the session URL
         window.location.href = sessionUrl;
       } else {
