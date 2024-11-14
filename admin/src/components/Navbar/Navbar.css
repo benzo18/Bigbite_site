@@ -1,0 +1,13 @@
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4%;
+}
+.logo { /* Assuming your logo image has the class "logo" */
+        max-width: 150px; /* Adjust the value as needed */
+        max-height: 200px; /* Adjust the value as needed */
+} 
+.navbar .profile{
+    width: 50px;
+}  

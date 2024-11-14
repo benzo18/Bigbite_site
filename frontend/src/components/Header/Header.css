@@ -1,0 +1,62 @@
+.header{
+    height: 45vw;
+    margin: 30px auto;
+    background-image: url('/bigbitebackground.png');
+    background-size: cover;
+    position: relative;
+    border-radius: 20px;
+}
+.header-contents{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 1.5vw;
+    max-width: 50%;
+    top: 50%;
+    left: 10px; 
+    transform: translateY(-50%);
+    animation: fadeIn 3s;
+}
+.header-contents h2{
+    font-weight: 500;
+    color: rgb(197, 103, 9);
+    font-size: max(4.5vw,22px);
+}
+.header-contents p{
+    color: darkslategray;
+    font-size: 1.8vw;
+}
+.header-contents button{
+    border: none;
+    color: #747474;
+    font-weight: 500;
+    padding: 1vw 2.3vw;
+    background-color:white;
+    font-size: max(1vw,13px);
+    border-radius: 50px;
+    border-radius: 50px;
+    display: block; 
+    margin-right: auto;
+    width: fit-content; 
+    margin-top: 30px; 
+}
+@media (max-width:1050px){
+   
+    .header-contents{
+        max-width: 45%;
+    }
+}
+@media (max-width:750px){
+    .header-contents{
+        max-width: 63%;
+    }
+    .header-contents p{
+        display: none;
+    }
+    .header-contents button{
+        padding: 2vw 4vw;
+        margin-left: 10px; /* Add a smaller left margin */
+        margin-right: 10px; /* Add a right margin for balance */
+    }
+}
