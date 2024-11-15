@@ -1,6 +1,6 @@
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import validator from "validator";
 
 //login user
@@ -36,26 +36,36 @@ const loginUser = async (req, res) => {
 //register user
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
+
   try {
     //check if user already exists
     const exists = await userModel.findOne({ email });
     if (exists) {
-      return res.json({ succsess: false, message: "Email already exists" });
+      return res.json({ success: false, message: "Email already exists" });
     }
-    //validating email format & strong password
+
+    // More comprehensive input validation
     if (!validator.isEmail(email)) {
-      return res.json({ succsess: false, message: "Invalid email format" });
+      return res.json({ success: false, message: "Invalid email format" });
     }
-    if (password.length < 8) {
-      return res
-        .json({
-          succsess: false,
-          message: "Password must be at least 8 characters",
-        });
+
+    // Stronger password validation (using a regular expression)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.json({ 
+        success: false, 
+        message: "Password must be at least 8 characters and include at least one uppercase letter, one lowercase letter, one number, and one special character" 
+      });
     }
+
+    if (!name || name.trim() === "") {
+      return res.json({ success: false, message: "Name is required" });
+    }
+
     //hashing password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
     //creating new user
     const newUser = new userModel({
       name: name,
@@ -71,7 +81,7 @@ const registerUser = async (req, res) => {
 
     // Respond with the token
     res.json({
-      succsess: true,
+      success: true,
       message: "User created successfully",
       token: token,
     });

@@ -29,7 +29,7 @@ const logout = () =>{
             <a href='#footer' onClick={()=>setMenu("Contact Us")} className={menu==="Contact Us"?"active":""}>Contact Us</a>
       </ul>
         <div className='navbar-right'>
-        <img src={assets.search_icon} alt="" />
+        
         <div className='navbar-serach-icon'>
            <NavLink to='/cart'><img src={assets.basket_icon} alt="" /></NavLink>
             <div className={getTotalCartAmount()===0?"":"dot"}></div>

@@ -6,6 +6,8 @@ import { placeOrder } from "../controllers/orderController.js";
 const orderRouter = express.Router();
 
 orderRouter.post("/place", placeOrder, authMiddleware);
+orderRouter.post("/verify",yoco-webhook)
+orderRouter.post("/userorders",authMiddleware,useOrders)
 
 
 
