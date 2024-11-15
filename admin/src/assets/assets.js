@@ -7,6 +7,9 @@ import parcel_icon from './parcel_icon.png'
 import bigbite from './bigbite.png'
 import admin_icon from './add_icon.png'
 
+export const url = 'https://bigbite-site-backend.onrender.com'
+export const currency = 'R'
+
 export const assets ={
     logo,
     add_icon,
