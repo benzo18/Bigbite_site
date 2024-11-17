@@ -62,8 +62,8 @@ const placeOrder = async (req, res) => {
                 currency: "ZAR",
                 line_items: line_items,
                 
-                success_url: `${frontend_url}/verify?success=true&orderId=${encodeURIComponent( newOrder._id)}`,
-                cancel_url: `${frontend_url}/verify?success=false&orderId=${encodeURIComponent(newOrder._id)}`,
+                successUrl:`${frontend_url}/verify?success=true&orderId=${encodeURIComponent( newOrder._id)}`,
+                failureUrl:`${frontend_url}/verify?success=false&orderId=${encodeURIComponent(newOrder._id)}`,
 
                 metadata: {
                     orderId: newOrder._id, // Include the newOrder._id here
@@ -108,6 +108,23 @@ const placeOrder = async (req, res) => {
         throw error;
     }
 };
+const verifyOrder = async (req,res) => {
+    const {orderId,success} = req.body;
+    try {
+        if (success==="true"){
+            await orderModel.findByIdAndUpdate(orderId,{payment:true});
+            res.json({success:true,message:"Paid"})
+            
+        }else{
+            await orderModel.findByIdAndDelete(orderId);
+            res.json({success:false,message:"Payment failed"})
+        }
+    } catch (error) {
+        console.log(error);
+        res.json({success:false,message:"Error verifying order"})
+        
+    }
+}
 
 //user orders for frontend
 const userOrders = async (req,res)=>{
