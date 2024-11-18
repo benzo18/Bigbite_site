@@ -61,6 +61,7 @@ const placeOrder = async (req, res) => {
                 amount: newOrder.amount * 100,
                 currency: "ZAR",
                 line_items: line_items,
+                
                 successUrl:`${frontend_url}/verify?success=true&orderId=${encodeURIComponent( newOrder._id)}`,
                 failureUrl:`${frontend_url}/verify?success=false&orderId=${encodeURIComponent(newOrder._id)}`,
 
@@ -107,7 +108,6 @@ const placeOrder = async (req, res) => {
         throw error;
     }
 };
-
 const verifyOrder = async (req,res) => {
     const {orderId,success} = req.body;
     try {
@@ -125,6 +125,8 @@ const verifyOrder = async (req,res) => {
         
     }
 }
+
+
 //user order for frontend
 const userOrder = async (req, res) => {
     try {
