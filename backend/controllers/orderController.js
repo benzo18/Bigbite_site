@@ -16,7 +16,7 @@ const placeOrder = async (req, res) => {
 
         // 2. Access the userId from the decoded payload
         const userId = payload.userId;
-
+        console.log(userId)
         // 3. Fetch the user's data from the database
         const user = await userModel.findById(userId);
 
@@ -37,7 +37,7 @@ const placeOrder = async (req, res) => {
         console.log("Received User ID:", req.body.userId);
 
         await newOrder.save();
-        await userModel.findByIdAndUpdate(req.body.userId, { cartData: {} });
+        await userModel.findByIdAndUpdate(userId, {cartData: {} });
 
         // 8. Format the order items for Yoco
         const line_items = req.body.items.map((item) => ({
@@ -61,9 +61,8 @@ const placeOrder = async (req, res) => {
                 amount: newOrder.amount * 100,
                 currency: "ZAR",
                 line_items: line_items,
-                
-                success_url: `${frontend_url}/verify?success=true&orderId=${encodeURIComponent( newOrder._id)}`,
-                cancel_url: `${frontend_url}/verify?success=false&orderId=${encodeURIComponent(newOrder._id)}`,
+                successUrl:`${frontend_url}/verify?success=true&orderId=${encodeURIComponent( newOrder._id)}`,
+                failureUrl:`${frontend_url}/verify?success=false&orderId=${encodeURIComponent(newOrder._id)}`,
 
                 metadata: {
                     orderId: newOrder._id, // Include the newOrder._id here
@@ -109,9 +108,68 @@ const placeOrder = async (req, res) => {
     }
 };
 
-//user orders for frontend
-const userOrders = async (req,res)=>{
-    
+const verifyOrder = async (req,res) => {
+    const {orderId,success} = req.body;
+    try {
+        if (success==="true"){
+            await orderModel.findByIdAndUpdate(orderId,{payment:true});
+            res.json({success:true,message:"Paid"})
+            
+        }else{
+            await orderModel.findByIdAndDelete(orderId);
+            res.json({success:false,message:"Payment failed"})
+        }
+    } catch (error) {
+        console.log(error);
+        res.json({success:false,message:"Error verifying order"})
+        
+    }
 }
+//user order for frontend
+const userOrder = async (req, res) => {
+    try {
+      // 1. Access the token from the request headers
+      const token = req.headers.authorization.split(" ")[1];
+  
+      // 2. Verify the token (replace 'your-jwt-secret' with your actual secret)
+      const { payload } = await jose.jwtVerify(
+        token,
+        new TextEncoder().encode(process.env.JWT_SECRET)
+      );
+  
+      // 3. Access the user ID from the payload
+      const userId = payload.userId;
+  
+      // 4. Now you can use the userId to fetch orders
+      const orders = await orderModel.find({ userId: userId });
+      res.json({ success: true, data: orders });
+    } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: "Error fetching orders" });
+    }
+  };
 
-export { placeOrder };
+  //Listing orders for admin panel
+  const listOrders = async (req, res) => {
+        try {
+            const orders = await orderModel.find({});
+            res.json({success:true,data:orders})
+        } catch (error) {
+            console.log(error);
+            res.json({success:false,message:"Error fetching orders"})
+        }
+  }
+
+  //api to update order status 
+  const updateStatus = async (req, res) => {
+        try {
+            await orderModel.findByIdAndUpdate(req.body.orderId,{status:req.body.status});
+            res.json({success:true,message:"Order status updated successfully"})
+        } catch (error) {
+            console.log(error);
+            res.json({success:false,message:"Error updating order status"})
+        }
+  }
+
+
+export { placeOrder,verifyOrder,userOrder,listOrders,updateStatus };

@@ -3,6 +3,7 @@ import "./PlaceOrder.css";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
 import * as jose from "jose";
+import {useNavigate}  from 'react-router-dom';
 
 const PlaceOrder = () => {
   const { getTotalCartAmount, token, food_list, cartItems, url } =
@@ -52,7 +53,7 @@ const PlaceOrder = () => {
         // Get the session URL from the response data
         const { sessionUrl } = response.data;
         console.log("Received session URL:", sessionUrl); // Log the session URL
-      
+       
         // Redirect the user to the session URL
         window.location.href = sessionUrl;
       } else {
@@ -109,6 +110,17 @@ const PlaceOrder = () => {
       return null;
     }
   }
+
+  const navigate = useNavigate();
+
+  useEffect(()=>{
+    if(!token){
+        navigate('/cart')
+    }
+    else if(getTotalCartAmount()===0){
+      navigate('/cart')
+    }
+  },[token])
 
   return (
     <form onSubmit={placeOrder} className="place-order">

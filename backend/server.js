@@ -3,7 +3,7 @@ import cors from "cors"
 import { connectDB } from "./config/db.js"
 import foodRouter from "./routes/foodRoute.js"
 import userRouter from "./routes/userRoute.js"
-import 'dotenv/config.js'
+import 'dotenv/config'
 import cartRouter from "./routes/cartRoute.js"
 import orderRouter from "./routes/orderRoute.js"
 import crypto from "crypto";
@@ -33,11 +33,11 @@ app.use("/api/order", orderRouter)
 
 
 app.get("/", (req, res) => {
-  res.send("API Working")
+    res.send("API Working")
 })
 app.get("/yoco-webhook", (req, res) => {
-  res.status(200).send("Webhook received!");
-  
+    res.status(200).send("Webhook received!");
+
 });
 
 // Yoco webhook endpoint
@@ -48,106 +48,54 @@ app.post("/yoco-webhook", async (req, res) => {
         const eventType = req.body.type;
         const eventData = req.body.payload;
 
-        // Extract success and cancel URLs from eventData
-        const successUrl = eventData.metadata.success_url;
-        const cancelUrl = eventData.metadata.cancel_url;
+        const eventHandlers = {
+            "payment.succeeded": async () => {
+                const orderId = eventData.metadata.orderId;
+                const order = await orderModel.findById(orderId);
 
-        let payload;
+                if (order) {
+                    order.payment = true;
+                    order.paidAt = Date.now();
+                    await order.save();
 
-        if (eventType === "payment.succeeded") {
-            const orderId = eventData.metadata.orderId;
+                    console.log(`Order ${orderId} updated to paid.`);
 
-            const order = await orderModel.findById(orderId);
-
-            if (order) {
-                const eventId = `evt_${uuidv4()}`;
-                const paymentId = `p_${uuidv4()}`;
-
-                payload = {
-                    id: eventId,
-                    type: "payment.succeeded",
-                    createdDate: order.date.toISOString(),
-                    payload: {
-                        id: paymentId,
-                        type: "payment",
-                        createdDate: order.date.toISOString(),
-                        amount: order.amount * 100,
-                        currency: "ZAR",
-                        paymentMethodDetails: {
-                            type: "card",
-                            card: {
-                                expiryMonth: 11,
-                                expiryYear: 2025,
-                                maskedCard: "************4242",
-                                scheme: "visa",
-                            },
-                        },
-                        status: "succeeded",
-                        mode: "test",
-                        metadata: {
-                            checkoutId: eventData.metadata.checkoutId,
-                        },
-                    },
-                };
-
-                const stringifiedPayload = JSON.stringify(payload);
-                const computedSignature = crypto
-                    .createHmac("sha256", process.env.YOCO_WEBHOOK_SECRET)
-                    .update(stringifiedPayload)
-                    .digest("hex");
-
-                console.log("Generated Payload:", payload);
-                console.log("Computed Signature:", computedSignature);
-
-                // --- Start processing payment.succeeded ---
-                if (eventType === "payment.succeeded") {
-                    const orderId = eventData.metadata.orderId;
-
-                    const order = await orderModel.findById(orderId);
-
-                    if (order) {
-                        order.payment = true;
-                        order.paidAt = Date.now();
-                        await order.save();
-
-                        console.log(`Order ${orderId} updated to paid.`);
-
-                        // Redirect to success URL after successful payment
-                        res.redirect(302, successUrl);
-                    } else {
-                        console.error(`Order ${orderId} not found.`);
-                    }
-                } else if (eventType === "payment.failed") {
-                    const orderId = eventData.metadata.orderId;
-
-                    const order = await orderModel.findById(orderId);
-
-                    if (order) {
-                        order.payment = false;
-                        order.failedAt = Date.now();
-                        await order.save();
-
-                        console.log(`Order ${orderId} updated to failed.`);
-
-                        // Redirect to cancel URL after failed payment
-                        res.redirect(302, cancelUrl);
-                    } else {
-                        console.error(`Order ${orderId} updated to failed.`);
-                    }
+                    // Redirect to success URL after successful payment
+                    res.redirect(302, eventData.metadata.successUrl);
                 } else {
-                    console.log("Unhandled Yoco webhook event:", eventType);
+                    console.error(`Order ${orderId} not found.`);
+                    res.status(404).send("Order not found");
                 }
-                // --- End processing payment.succeeded ---
+            },
+            "payment.failed": async () => {
+                const orderId = eventData.metadata.orderId;
+                const order = await orderModel.findById(orderId);
 
-                res.status(200).send();
-            } else {
-                console.error(`Order ${orderId} not found.`);
-                res.status(404).send("Order not found");
-            }
+                if (order) {
+                    order.payment = false;
+                    order.failedAt = Date.now();
+                    await order.save();
+
+                    console.log(`Order ${orderId} updated to failed.`);
+
+                    // Redirect to cancel URL after failed payment
+                    res.redirect(302, eventData.metadata.failureUrl);
+                } else {
+                    console.error(`Order ${orderId} not found.`);
+                    res.status(404).send("Order not found");
+                }
+            },
+            // Add more handlers for other event types as needed
+        };
+
+        const handler = eventHandlers[eventType];
+        if (handler) {
+            await handler();
         } else {
             console.log("Unhandled Yoco webhook event:", eventType);
-            res.status(200).send(); // Still send a 200 OK for other events
+            res.status(200).send();
         }
+
     } catch (error) {
         console.error("Error processing Yoco webhook:", error);
         res.status(500).send("Error processing webhook");
@@ -155,6 +103,6 @@ app.post("/yoco-webhook", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`)
+    console.log(`Server is running on http://localhost:${port}`)
 })
 

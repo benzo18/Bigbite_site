@@ -4,13 +4,12 @@ import axios from "axios";
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-  
-  const url = "https://bigbite-site-backend.onrender.com"
   const [cartItems, setCartItems] = useState({});
+  const url = "http://localhost:4000";
   const [token, setToken] = useState("");
   const [food_list, setFoodList] = useState([]);
 
-  const addToCart = async (itemId) => {
+  const addToCart = async (itemId,userId) => {
     if (!cartItems[itemId]) {
       setCartItems((prev) => ({ ...prev, [itemId]: 1 }));
     } else {
@@ -19,18 +18,18 @@ const StoreContextProvider = (props) => {
     if (token) {
       await axios.post(
         url + "/api/cart/add",
-        { itemId },
+        { itemId,userId },
         { headers: { token } }
       );
     }
   };
 
-  const removeFromCart = async (itemId) => {
+  const removeFromCart = async (itemId,userId) => {
     setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
     if (token) {
       await axios.post(
         url + "/api/cart/remove",
-        { itemId },
+        { itemId,userId },
         { headers: { token } }
       );
     }
