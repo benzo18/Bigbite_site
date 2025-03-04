@@ -1,0 +1,13 @@
+.quantity-control{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px;
+    border-radius: 50px;
+    background-color: white;
+    grid-column: 5; /* Place it in the 5th column (Remove) */
+    justify-self: center; /* Align it to the right */
+  }
+.food-item-counter img{
+    width: 20x;
+}

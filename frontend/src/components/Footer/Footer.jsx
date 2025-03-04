@@ -9,9 +9,13 @@ const Footer = () => {
         <div className="footer-content-left">
             <img src={assets.bigbite} alt="" className='logo' />
            <div className="footer-social-icons">
-            <img src={assets.facebook_icon} alt="" />
-            <img src={assets.instagram_logo} alt="" />
-            <img src={assets.twitter_icon} alt="" />
+         
+          <a href="https://www.instagram.com/bigbitecafeza/" target="_blank" rel="noopener noreferrer">
+               <img src={assets.instagram_logo} alt="" />
+          </a>
+            
+      
+            
            </div>
         </div>
        

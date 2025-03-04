@@ -6,7 +6,9 @@ const orderSchema = new mongoose.Schema({
   amount: { type: Number, required: [true, 'Amount is required'] },
   status: { type: String, default: "Food Processing" },
   date: { type: Date, default: Date.now() },
-  payment: { type: Boolean, default: false }
+  payment: { type: Boolean, default: false },
+  deliveryOption: { type: String, required: false }, // Add this line
+  notes: { type: String, required: false } // Add this line
 });
 
 const orderModel = mongoose.models.order || mongoose.model("order", orderSchema);

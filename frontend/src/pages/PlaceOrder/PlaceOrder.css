@@ -12,3 +12,21 @@
 .place-order-center .cart-total button{
     margin-top: 30px;
 }
+.delivery-option {
+    margin-bottom: 1rem;
+}.delivery-option label {
+  display: block;
+  margin-bottom: 0.5rem;
+}.note {
+  margin-bottom: 1rem;
+}.note label {
+  display: block;
+  margin-bottom: 0.5rem;
+}.note textarea {
+  width: 100%;
+  height: 8rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}

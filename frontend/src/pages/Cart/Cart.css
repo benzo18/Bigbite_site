@@ -2,18 +2,30 @@
     margin-top: 100px;
 }
 .cart-items-title{
+    margin: 10px 0px;
     display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr 0.5fr;
+    grid-template-columns: 1fr 1.5fr 1fr 1fr 0.5fr;
     align-items: center;
     color: gray;
-    font-size: max(1vw,12px);
+   
 }
 .cart-items-item{
     margin: 10px 0px;
     color: black;
+    display: grid; /* Use grid instead of flex */
+    grid-template-columns: 1fr 1.5fr 1fr 1fr 0.5fr; /* 5 columns */
+    align-items: center; /* Vertically align items */
+    
+}
+.cart-items-item.quantity-control img {
+    width: 30px; /* Adjust the size of the icons as needed */
+  }
+.cart-items-item .food-image{
+    width: 80px;
 }
 .cart-items-item img{
-    width: 70px;
+    width: 30px;
+    cursor: pointer;
 }
 .cart hr{
     height: 1px;
@@ -52,6 +64,7 @@
     border-radius: 4px;
     cursor: pointer;
 }
+
 @media (max-width:750px){
     .cart-bottom{
         flex-direction: column-reverse;

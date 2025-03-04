@@ -1,13 +1,25 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import "./PlaceOrder.css";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
 import * as jose from "jose";
-import {useNavigate}  from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const PlaceOrder = () => {
   const { getTotalCartAmount, token, food_list, cartItems, url } =
     useContext(StoreContext);
+
+  const [deliveryOption, setDeliveryOption] = useState('pickup'); // Default is pickup
+
+  const handleDeliveryOptionChange = (event) => {
+    setDeliveryOption(event.target.value);
+  };
+
+  const [notes, setNotes] = useState("");
+
+  const handleNoteChange = (event) => {
+    setNotes(event.target.value);
+  };
 
   const placeOrder = async (event) => {
     try {
@@ -35,13 +47,28 @@ const PlaceOrder = () => {
         }
       });
 
+      // === Add Validation for Notes and Delivery Option ===
+      if (!notes) {
+        alert("Please add a note before placing the order.");
+        return; // Stop the function if notes are empty
+      }
+
+      if (!deliveryOption) {
+        alert("Please select a delivery option before placing the order.");
+        return; // Stop the function if delivery option is not selected
+      }
+
       // Create an object to store the order data
       let orderData = {
         userId: userId,
         items: orderItems,
         amount: getTotalCartAmount(),
+        deliveryOption: deliveryOption, // Add delivery option to order data
+        notes: notes // Add notes to order data
       };
-      console.log("Order data:", orderData); // Add this line
+      console.log("Order data being sent:", orderData); // Add this line
+      console.log("Delivery Option:", deliveryOption);
+      console.log("Notes:", notes);
 
       // Send a POST request to the backend API to place the order
       let response = await axios.post(url + "/api/order/place", orderData, {
@@ -53,7 +80,7 @@ const PlaceOrder = () => {
         // Get the session URL from the response data
         const { sessionUrl } = response.data;
         console.log("Received session URL:", sessionUrl); // Log the session URL
-       
+
         // Redirect the user to the session URL
         window.location.href = sessionUrl;
       } else {
@@ -74,7 +101,7 @@ const PlaceOrder = () => {
         console.error("Response status:", error.response.status);
         alert(
           "Error placing order. Please try again later. Status Code: " +
-            error.response.status
+          error.response.status
         );
       } else if (error.request) {
         // The request was made but no response was received
@@ -113,14 +140,14 @@ const PlaceOrder = () => {
 
   const navigate = useNavigate();
 
-  useEffect(()=>{
-    if(!token){
-        navigate('/cart')
-    }
-    else if(getTotalCartAmount()===0){
+  useEffect(() => {
+    if (!token) {
       navigate('/cart')
     }
-  },[token])
+    else if (getTotalCartAmount() === 0) {
+      navigate('/cart')
+    }
+  }, [token])
 
   return (
     <form onSubmit={placeOrder} className="place-order">
@@ -136,9 +163,46 @@ const PlaceOrder = () => {
                 {getTotalCartAmount() === 0 ? 0 : getTotalCartAmount()}
               </p>
             </div>
+
             <hr />
             <br />
           </div>
+
+          {/* Delivery Options */}
+          <div>
+            <label>Delivery Option:</label>
+            <div>
+              <input
+                type="radio"
+                id="delivery"
+                name="deliveryOption"
+                value="delivery"
+                checked={deliveryOption === "delivery"}
+                onChange={(e) => setDeliveryOption(e.target.value)}
+              />
+              <label htmlFor="delivery">Delivery</label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                id="collection"
+                name="deliveryOption"
+                value="collection"
+                checked={deliveryOption === "collection"}
+                onChange={(e) => setDeliveryOption(e.target.value)}
+              />
+              <label htmlFor="collection">Collection</label>
+            </div>
+          </div>
+          <div className="note">
+            <label htmlFor="note">Add a Note:</label>
+            <textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+
           <button type="submit">PROCEED TO PAYMENT</button>
         </div>
       </div>

@@ -31,12 +31,16 @@ const placeOrder = async (req, res) => {
             userId: userId,
             items: req.body.items,
             amount: req.body.amount,
+            deliveryOption: req.body.deliveryOption, // Add this line
+            notes: req.body.notes // Add this line
         });
-
+        console.log("Request body received:", req.body);
+        console.log("New order object before saving:", newOrder);
         // 7. Log the userId received from the frontend
         console.log("Received User ID:", req.body.userId);
 
-        await newOrder.save();
+        const savedOrder = await newOrder.save();
+        console.log("Saved order:", savedOrder);
         await userModel.findByIdAndUpdate(userId, {cartData: {} });
 
         // 8. Format the order items for Yoco
@@ -62,7 +66,7 @@ const placeOrder = async (req, res) => {
                 currency: "ZAR",
                 line_items: line_items,
                 
-                successUrl:`${frontend_url}/verify?success=true&orderId=${encodeURIComponent( newOrder._id)}`,
+                successUrl: `${frontend_url}/verify?success=true&orderId=${encodeURIComponent(newOrder._id)}`,
                 failureUrl:`${frontend_url}/verify?success=false&orderId=${encodeURIComponent(newOrder._id)}`,
 
                 metadata: {

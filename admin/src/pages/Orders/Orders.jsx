@@ -20,12 +20,12 @@ const Orders = ({ url }) => {
     }
   }
 
-  const statusHandler = async (event,orderId) => {
-    const response = await axios.post(url+"/api/order/status",{
-      "orderId":orderId,
-      "status":event.target.value
+  const statusHandler = async (event, orderId) => {
+    const response = await axios.post(url + "/api/order/status", {
+      "orderId": orderId,
+      "status": event.target.value
     })
-    if(response.data.success){
+    if (response.data.success) {
       await fetchAllOrders();
     }
   }
@@ -38,7 +38,7 @@ const Orders = ({ url }) => {
     <div className='order add'>
       <h3>Order Page</h3>
       <div className="order-list">
-        {orders.map((order, index) => {          
+        {orders.map((order, index) => {
           return <div key={index} className="order-item">
             <img src={assets.parcel_icon} alt="" />
             <div>
@@ -53,12 +53,14 @@ const Orders = ({ url }) => {
               </p>
             </div>
             <p>Items : {order.items.length}</p>
-              <p>R{order.amount}</p>
-              <select onChange={(event)=>statusHandler(event,order._id)} value={order.status}>
-                <option value="Food Processing">Food Processing</option>
-                <option value="Ready For collection">Ready For collection</option>
-                <option value="Collected">Collected</option>
-              </select>
+            <p>R{order.amount}</p>
+            <select onChange={(event) => statusHandler(event, order._id)} value={order.status}>
+              <option value="Food Processing">Food Processing</option>
+              <option value="Ready For collection">Ready For collection</option>
+              <option value="Collected">Collected</option>
+            </select>
+            <p>Delivery Option: {order.deliveryOption}</p> {/* Add this line */}
+            <p>Notes: {order.notes}</p> {/* Add this line */}
           </div>
         })}
       </div>
