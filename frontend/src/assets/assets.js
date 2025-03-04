@@ -62,6 +62,7 @@ import bag_icon from './bag_icon.png'
 import logout_icon from './logout_icon.png'
 import parcel_icon from './parcel_icon.png'
 import instagram_logo from './instagram_logo.jpg'
+import userManual from './userManual.pdf'
 
 export const assets = {
     bigbitebackground,
@@ -85,7 +86,8 @@ export const assets = {
     logout_icon,
     bag_icon,
     parcel_icon,
-    instagram_logo
+    instagram_logo,
+    userManual
     
 }
 

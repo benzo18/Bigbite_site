@@ -40,6 +40,31 @@
     background-color: salmon;
     border: none;
  }
+/* Styles for the user manual link */
+.footer-content-right {
+    align-items: flex-end;
+    /* Align items to the right */
+  }
+  
+  .user-manual {
+    margin-top: 20px;
+    /* Add some space above the link */
+  }
+  
+  .user-manual a {
+    color: #d9d9d9;
+    /* Match the default text color */
+    text-decoration: none;
+    /* Remove default underline */
+    transition: color 0.3s ease;
+    /* Add a smooth hover effect */
+  }
+  
+  .user-manual a:hover {
+    color: salmon;
+    /* Use your highlight color (salmon) on hover */
+  }
+
  @media (max-width:750px){
     .footer-content{
         display: flex;
