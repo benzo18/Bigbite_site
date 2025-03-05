@@ -17,20 +17,20 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="footer-content-right">
+        <div className="footer-content-center">
           <h2>GET IN TOUCH</h2>
           <ul>
             <li>+27 11-598-7070</li>
             <li>bigbite@gmail.com</li>
           </ul>
+        </div>
 
-          <div className="user-manual">
+        <div className="user-manual">
             <a href={assets.userManual} download="BigBite_User_Manual.pdf">
               Download User Manual
             </a>
           </div>
 
-        </div>
       </div>
       <hr />
       <p className="footer-copyright">Copyright © 2024 Big Bite Cafe. All rights reserved.</p>
