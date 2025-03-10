@@ -108,21 +108,20 @@ const Orders = ({ url }) => {
         })}
       </div>
       <div className="pagination">
-        <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>{"< Previous"}</button>
+        <button onClick={() => setPage(prevPage => Math.max(1, prevPage - 1))} disabled={page === 1}>{"< Previous"}</button>
 
-        {page > 3 && <span>...</span>} {/* Ellipsis for pages before current */}
+        {page > 3 && <span>...</span>}
 
         {pageNumbers.map(number => (
-          // Only display page buttons around the current page
           (number >= page - 2 && number <= page + 2) &&
           <button key={number} onClick={() => setPage(number)} className={page === number ? 'active' : ''}>
             {number}
           </button>
         ))}
 
-        {page < totalPages - 2 && <span>...</span>} {/* Ellipsis for pages after current */}
+        {page < totalPages - 2 && <span>...</span>}
 
-        <button onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>{"Next >"}</button>
+        <button onClick={() => setPage(prevPage => Math.min(totalPages, prevPage + 1))} disabled={page === totalPages}>{"Next >"}</button>
       </div>
     </div>
   )
