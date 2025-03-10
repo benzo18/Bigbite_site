@@ -1,31 +1,91 @@
-.order-item{
-   display: grid;
-   grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr;
+.order-item {
+    display: grid;
+    grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr 0.5fr;
+    /* Adjusted columns to accommodate the button */
     align-items: start;
-    gap: 30px;
+    gap: 15px;
+    /* Adjusted gap for even spacing */
     border: 1px solid tomato;
     padding: 20px;
-    margin: 30px;
+    margin: 20px;
     font-size: 14px;
     color: #505050;
 }
-.order-item-food, .order-item-name{
+
+.order-item-food,
+.order-item-name {
     font-weight: 600;
 }
-.order-item select{
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    /* Center horizontally */
+    align-items: center;
+    /* Center vertically */
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.pagination button,
+.pagination span {
+    margin: 0 5px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+}
+
+.pagination button.active {
+    background-color: #f0c14b;
+    border-color: #a88734 #9c7e31 #846a29;
+}
+
+.pagination span {
+    padding: 8px 0;
+    user-select: none;
+    /* Prevent text selection */
+}
+
+.order-item select,
+.order-item button {
+    /* Style both select and button */
     background-color: #ffe8e4;
     border: 1px solid tomato;
-    width: max(10vw,120px);
+    width: max(10vw, 120px);
     padding: 10px;
     outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    /* Add transition for smooth effect */
 }
-@media(max-width:1000px){
-    .order-item{
+
+.order-item button:hover, .order-item select:hover {
+    background-color: tomato;
+    /* Change background color to tomato on hover */
+}
+
+.delivery-notes {
+    /* Style for delivery options and notes */
+    grid-column: span 2;
+    /* Span across two columns */
+    text-align: left;
+}
+
+.delivery-notes p {
+    margin: 5px 0;
+    /* Add some space between delivery options and notes */
+}
+
+@media(max-width:1000px) {
+    .order-item {
         font-size: 12px;
         grid-template-columns: 0.5fr 2fr 1fr;
         padding: 15px 8px;
     }
-    .order-item img{
+
+    .order-item img {
         width: 40px;
     }
 }

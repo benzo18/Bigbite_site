@@ -16,7 +16,19 @@
 .cursor{
     cursor: pointer;
 }
-
+.remove-button { /* Style for the "Remove" button */
+    background-color: #ffe8e4;
+    border: 1px solid tomato;
+    color: black;/* Initial text color */
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Add transitions */
+  }
+  
+  .remove-button:hover {
+    background-color: tomato;
+    color: white; /* Change text color to white on hover */
+  }
 @media (max-width:600px){
     .list-table-format{
         grid-template-columns: 1fr 3fr 1fr;
