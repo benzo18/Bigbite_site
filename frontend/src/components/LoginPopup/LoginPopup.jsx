@@ -5,7 +5,7 @@ import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import validator from "validator";
-import { authUrl } from "./auth";
+import { authUrl } from './auth.js';
 
 const LoginPopup = ({ setShowLogin }) => {
   const { url, setToken } = useContext(StoreContext);
