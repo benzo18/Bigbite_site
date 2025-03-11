@@ -3,7 +3,9 @@ import "./LoginPopup.css";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google"; // Import GoogleOAuthProvider
+import { GoogleLogin } from "@react-oauth/google";
+import validator from "validator";
+import { authUrl } from "./auth";
 
 const LoginPopup = ({ setShowLogin }) => {
   const { url, setToken } = useContext(StoreContext);
@@ -14,14 +16,39 @@ const LoginPopup = ({ setShowLogin }) => {
     email: "",
     password: "",
   });
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const onChangeHandler = (event) => {
     const { name, value } = event.target;
     setData((data) => ({ ...data, [name]: value }));
+
+    // Validation checks
+    if (name === "email") {
+      if (!validator.isEmail(value)) {
+        setEmailError("Please enter a valid email address.");
+      } else {
+        setEmailError("");
+      }
+    } else if (name === "password") {
+      if (value.length < 6) {
+        setPasswordError("Password must be at least 6 characters long.");
+      } else {
+        setPasswordError("");
+      }
+    }
   };
 
   const onLogin = async (event) => {
     event.preventDefault();
+
+    // If there are validation errors, prevent submission
+    if (emailError || passwordError) {
+      alert("Please fix the validation errors.");
+      return;
+    }
+
     const newUrl =
       currState === "Login"
         ? `${url}/api/user/login`
@@ -55,20 +82,21 @@ const LoginPopup = ({ setShowLogin }) => {
 
   testLocalStorage();
 
+  const handleGoogleSignIn = () => {
+    window.location.href = authUrl; // Redirect to authUrl
+  };
+
   const handleGoogleSignInSuccess = async (response) => {
     try {
-      // Send the Google credential to your backend for verification
       const res = await axios.post(`${url}/api/user/google-login`, {
         credential: response.credential,
       });
 
       if (res.data.success) {
-        // Store the token and handle successful login
         setToken(res.data.token);
         localStorage.setItem("token", res.data.token);
         setShowLogin(false);
       } else {
-        // Handle login error
         console.error("Google login error:", res.data.message);
         alert(`Login failed: ${res.data.message}`);
       }
@@ -81,6 +109,10 @@ const LoginPopup = ({ setShowLogin }) => {
   const handleGoogleSignInError = (error) => {
     console.error("Google sign-in error:", error);
     alert("Google sign-in failed. Please try again later.");
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -115,32 +147,36 @@ const LoginPopup = ({ setShowLogin }) => {
             placeholder="Your email"
             required
           />
-          <input
-            name="password"
-            onChange={onChangeHandler}
-            value={data.password}
-            type="password"
-            placeholder="Password"
-            required
-          />
+          {emailError && <span className="error">{emailError}</span>}
+          <div className="password-input">
+            <input
+              name="password"
+              onChange={onChangeHandler}
+              value={data.password}
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              required
+            />
+            <button type="button" onClick={togglePasswordVisibility}>
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+          {passwordError && <span className="error">{passwordError}</span>}
         </div>
         <button type="submit">
           {currState === "Sign up" ? "Create account" : "Login"}
         </button>
         <GoogleOAuthProvider clientId="944161213551-ve6q3gohao3p9ju3ibofes7lef3ttfsj.apps.googleusercontent.com">
-        <form onSubmit={onLogin} className="login-popup-container">
-          {/* ... (rest of your form) */}
-          {currState === "Login" && ( // Conditionally render GoogleLogin within the form
+          {currState === "Login" && (
             <GoogleLogin
-            clientId="944161213551-ve6q3gohao3p9ju3ibofes7lef3ttfsj.apps.googleusercontent.com" // Updated client ID
+            clientId="944161213551-ve6q3gohao3p9ju3ibofes7lef3ttfsj.apps.googleusercontent.com" // Updated client ID         
               buttonText="Sign in with Google"
-              onSuccess={handleGoogleSignInSuccess}
+              onSuccess={handleGoogleSignIn}
               onError={handleGoogleSignInError}
               cookiePolicy={"single_host_origin"}
             />
           )}
-        </form>
-      </GoogleOAuthProvider>
+        </GoogleOAuthProvider>
         <div className="login-popup-condition">
           <input type="checkbox" required />
           <p>By continuing, i agree to the terms of use & privacy policy.</p>

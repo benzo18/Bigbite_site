@@ -3,36 +3,42 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { OAuth2Client } from "google-auth-library";
 import validator from "validator";
+import nodemailer from "nodemailer";
+import { google } from "googleapis"; // Import googleapis
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Login user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+
   try {
+    // Validation checks (using validator.js)
+    if (!validator.isEmail(email)) {
+      return res.json({ success: false, message: "Invalid email format" });
+    }
+
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res.json({ message: "User not found" });
+      return res.json({ success: false, message: "User not found" });
     }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.json({ success: false, message: "Invalid password" });
     }
 
-    // Generate the JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
     console.log("Generated token:", token);
 
-    // Include the token in the response
     res.json({
       token,
       success: true,
       message: "Logged in successfully",
-      token: token,
     });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: "Error" });
+    console.error("Error during login:", error);
+    res.status(500).json({ success: false, message: "Login failed" });
   }
 };
 
@@ -66,11 +72,9 @@ const registerUser = async (req, res) => {
       return res.json({ success: false, message: "Name is required" });
     }
 
-    // Hashing password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Creating new user
     const newUser = new userModel({
       name: name,
       email: email,
@@ -79,11 +83,9 @@ const registerUser = async (req, res) => {
 
     const user = await newUser.save();
 
-    // Generate the JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
     console.log("Generated token:", token);
 
-    // Respond with the token
     res.json({
       success: true,
       message: "User created successfully",
@@ -97,31 +99,32 @@ const registerUser = async (req, res) => {
 
 // Google Sign-In
 const googleLogin = async (req, res) => {
-  const { credential } = req.body;
+  const { code } = req.query; // Get the code from the query parameters
 
   try {
-    // Verify the Google ID token
-    const ticket = await client.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
+    // Exchange the authorization code for tokens
+    const { tokens } = await client.getToken(code);
+    client.setCredentials(tokens);
 
-    // Extract user information
-    const { name, email } = payload;
+    // Fetch the user's profile with the access token
+    const gmail = google.gmail({ version: "v1", auth: client });
+    const profile = await gmail.users.getProfile({ userId: "me" });
+
+    // Extract user information from the profile
+    const { emailAddress, name } = profile.data;
 
     // Check if user exists
-    let user = await userModel.findOne({ email });
+    let user = await userModel.findOne({ email: emailAddress });
 
     if (!user) {
-      // Generate a random password
+      // Generate a random password for new users
       const randomPassword = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
       // Create a new user
       user = new userModel({
         name: name,
-        email: email,
+        email: emailAddress,
         password: hashedPassword,
       });
       await user.save();
@@ -136,4 +139,39 @@ const googleLogin = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser, googleLogin };
+// Function to send verification email
+const sendVerificationEmail = async (email, token) => {
+  try {
+    // Create a nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: process.env.GOOGLE_CLIENT_EMAIL,
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+        accessToken: process.env.GOOGLE_ACCESS_TOKEN, // Use the access token if available
+      },
+    });
+
+    // Compose the email
+    const mailOptions = {
+      from: process.env.GOOGLE_CLIENT_EMAIL,
+      to: email,
+      subject: "Email Verification",
+      html: `
+        <p>Please click the following link to verify your email:</p>
+        <a href="${process.env.FRONTEND_URL}/verify/${token}">Verify Email</a>
+      `,
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+    // Handle the error appropriately (e.g., log it, send an error response)
+  }
+};
+
+export { loginUser, registerUser, googleLogin, sendVerificationEmail };
