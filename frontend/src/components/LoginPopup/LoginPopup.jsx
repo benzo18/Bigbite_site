@@ -3,9 +3,9 @@ import "./LoginPopup.css";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google"; // Import GoogleOAuthProvider
 import validator from "validator";
-import { authUrl } from './auth.js';
+
 
 const LoginPopup = ({ setShowLogin }) => {
   const { url, setToken } = useContext(StoreContext);
@@ -81,10 +81,6 @@ const LoginPopup = ({ setShowLogin }) => {
   };
 
   testLocalStorage();
-
-  const handleGoogleSignIn = () => {
-    window.location.href = authUrl; // Redirect to authUrl
-  };
 
   const handleGoogleSignInSuccess = async (response) => {
     try {
@@ -171,7 +167,7 @@ const LoginPopup = ({ setShowLogin }) => {
             <GoogleLogin
             clientId="944161213551-ve6q3gohao3p9ju3ibofes7lef3ttfsj.apps.googleusercontent.com" // Updated client ID         
               buttonText="Sign in with Google"
-              onSuccess={handleGoogleSignIn}
+              onSuccess={handleGoogleSignInSuccess}
               onError={handleGoogleSignInError}
               cookiePolicy={"single_host_origin"}
             />

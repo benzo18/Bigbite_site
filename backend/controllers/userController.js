@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { OAuth2Client } from "google-auth-library";
 import validator from "validator";
-import nodemailer from "nodemailer";
 import { google } from "googleapis"; // Import googleapis
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -139,39 +138,5 @@ const googleLogin = async (req, res) => {
   }
 };
 
-// Function to send verification email
-const sendVerificationEmail = async (email, token) => {
-  try {
-    // Create a nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: process.env.GOOGLE_CLIENT_EMAIL,
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-        accessToken: process.env.GOOGLE_ACCESS_TOKEN, // Use the access token if available
-      },
-    });
 
-    // Compose the email
-    const mailOptions = {
-      from: process.env.GOOGLE_CLIENT_EMAIL,
-      to: email,
-      subject: "Email Verification",
-      html: `
-        <p>Please click the following link to verify your email:</p>
-        <a href="${process.env.FRONTEND_URL}/verify/${token}">Verify Email</a>
-      `,
-    };
-
-    // Send the email
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error("Error sending verification email:", error);
-    // Handle the error appropriately (e.g., log it, send an error response)
-  }
-};
-
-export { loginUser, registerUser, googleLogin, sendVerificationEmail };
+export { loginUser, registerUser, googleLogin };
