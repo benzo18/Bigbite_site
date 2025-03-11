@@ -1,5 +1,5 @@
 import express from "express";
-import authMiddleware from "../middleware/auth.js";
+import { authMiddleware } from "../middleware/auth.js"; // Import as named export
 import { placeOrder,verifyOrder,userOrder,listOrders,updateStatus } from "../controllers/orderController.js";
 import orderModel from "../models/orderModel.js";
 
