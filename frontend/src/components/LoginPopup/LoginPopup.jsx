@@ -3,7 +3,7 @@ import "./LoginPopup.css";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google"; // Import GoogleOAuthProvider
 
 const LoginPopup = ({ setShowLogin }) => {
   const { url, setToken } = useContext(StoreContext);
@@ -127,16 +127,20 @@ const LoginPopup = ({ setShowLogin }) => {
         <button type="submit">
           {currState === "Sign up" ? "Create account" : "Login"}
         </button>
-        {currState === "Login" ? (
-          <GoogleLogin
-            clientId="944161213551-ve6q3gohao3p9ju3ibofes7lef3ttfsj.apps.googleusercontent.com" // Updated client ID            buttonText="Sign in with Google"
-            onSuccess={handleGoogleSignInSuccess}
-            onError={handleGoogleSignInError}
-            cookiePolicy={"single_host_origin"}
-          />
-        ) : (
-          <></>
-        )}
+        <GoogleOAuthProvider clientId="944161213551-ve6q3gohao3p9ju3ibofes7lef3ttfsj.apps.googleusercontent.com">
+        <form onSubmit={onLogin} className="login-popup-container">
+          {/* ... (rest of your form) */}
+          {currState === "Login" && ( // Conditionally render GoogleLogin within the form
+            <GoogleLogin
+            clientId="944161213551-ve6q3gohao3p9ju3ibofes7lef3ttfsj.apps.googleusercontent.com" // Updated client ID
+              buttonText="Sign in with Google"
+              onSuccess={handleGoogleSignInSuccess}
+              onError={handleGoogleSignInError}
+              cookiePolicy={"single_host_origin"}
+            />
+          )}
+        </form>
+      </GoogleOAuthProvider>
         <div className="login-popup-condition">
           <input type="checkbox" required />
           <p>By continuing, i agree to the terms of use & privacy policy.</p>
