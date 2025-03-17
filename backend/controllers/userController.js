@@ -3,11 +3,10 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { OAuth2Client } from "google-auth-library";
 import validator from "validator";
-import { google } from "googleapis"; // Import googleapis
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET; // Access the client secret from env
-const client = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET);  // Initialize with client ID and secret
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const client = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET);
 
 // Login user
 const loginUser = async (req, res) => {
@@ -100,34 +99,27 @@ const registerUser = async (req, res) => {
 
 // Google Sign-In
 const googleLogin = async (req, res) => {
-  const { code } = req.query; // Get the code from the query parameters
-
   try {
     const { credential } = req.body;
-    console.log("Received credential:", credential); // Log the credential
+    console.log("Received credential:", credential);
 
     // Verify the Google ID token
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: GOOGLE_CLIENT_ID, // Use the variable here
+      audience: GOOGLE_CLIENT_ID,
     });
-    console.log("Ticket:", ticket);
     const payload = ticket.getPayload();
-    console.log("Payload from Google:", payload); // Log the payload
+    console.log("Payload from Google:", payload);
 
-    // Exchange the authorization code for tokens
-    const { tokens } = await client.getToken(code);
-    client.setCredentials(tokens);
+    // Extract user information from the payload
+    const { email, name, email_verified, picture } = payload;
 
-    // Fetch the user's profile with the access token
-    const gmail = google.gmail({ version: "v1", auth: client });
-    const profile = await gmail.users.getProfile({ userId: "me" });
-
-    // Extract user information from the profile
-    const { emailAddress, name } = profile.data;
+    if (!email_verified) {
+      return res.status(400).json({ success: false, message: "Google email not verified" });
+    }
 
     // Check if user exists
-    let user = await userModel.findOne({ email: emailAddress });
+    let user = await userModel.findOne({ email: email });
 
     if (!user) {
       // Generate a random password for new users
@@ -137,8 +129,9 @@ const googleLogin = async (req, res) => {
       // Create a new user
       user = new userModel({
         name: name,
-        email: emailAddress,
+        email: email,
         password: hashedPassword,
+        
       });
       await user.save();
     }
@@ -146,14 +139,10 @@ const googleLogin = async (req, res) => {
     // Generate JWT
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
     res.json({ success: true, token });
-
-    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
-    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET);
   } catch (error) {
     console.error("Error during Google login:", error);
-    res.status(500).json({ success: false, message: "Google login failed" });
+    return res.status(500).json({ success: false, message: "Google login failed" });
   }
 };
-
 
 export { loginUser, registerUser, googleLogin };
