@@ -101,6 +101,18 @@ const googleLogin = async (req, res) => {
   const { code } = req.query; // Get the code from the query parameters
 
   try {
+    const { credential } = req.body;
+    console.log("Received credential:", credential); // Log the credential
+
+    // Verify the Google ID token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    console.log("Ticket:", ticket);
+    const payload = ticket.getPayload();
+    console.log("Payload from Google:", payload); // Log the payload
+
     // Exchange the authorization code for tokens
     const { tokens } = await client.getToken(code);
     client.setCredentials(tokens);
@@ -132,6 +144,9 @@ const googleLogin = async (req, res) => {
     // Generate JWT
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
     res.json({ success: true, token });
+
+    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
+    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET);
   } catch (error) {
     console.error("Error during Google login:", error);
     res.status(500).json({ success: false, message: "Google login failed" });

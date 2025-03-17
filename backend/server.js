@@ -20,6 +20,12 @@ const port = process.env.PORT || 4000;
 app.use(express.json())
 app.use(cors())
 
+// Add COOP middleware here, before your routes
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin'); 
+    next();
+  });
+
 //db connection
 connectDB();
 
