@@ -5,7 +5,9 @@ import { OAuth2Client } from "google-auth-library";
 import validator from "validator";
 import { google } from "googleapis"; // Import googleapis
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET; // Access the client secret from env
+const client = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET);  // Initialize with client ID and secret
 
 // Login user
 const loginUser = async (req, res) => {
@@ -107,7 +109,7 @@ const googleLogin = async (req, res) => {
     // Verify the Google ID token
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: GOOGLE_CLIENT_ID, // Use the variable here
     });
     console.log("Ticket:", ticket);
     const payload = ticket.getPayload();
