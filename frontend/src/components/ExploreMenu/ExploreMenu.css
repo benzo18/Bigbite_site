@@ -30,6 +30,8 @@
     cursor: pointer;
     border-radius: 50%;
     transition: 0.2s;
+    object-fit: contain; /* Or object-fit: cover;  <--- ADD THIS LINE */
+    height: 100%;        /* Ensure the image fills the container */
 }
 .explore-menu-list-item p{
     margin-top: 10px;

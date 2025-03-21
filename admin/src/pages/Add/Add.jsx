@@ -71,14 +71,19 @@ else{
               <p>Product Category</p >
               <select onChange={onChangeHandler}  value={data.category} name="category">
               <option value="">Select a category</option>
-                <option value="Salad">Salad</option>
-                <option value="Rolls">Rolls</option>
-                <option value="Desert">Desert</option>
-                <option value="Sandwich">Sandwich</option>
-                <option value="Cake">Cake</option>
-                <option value="Pure Veg">Pure Veg</option>
+                <option value="Vegeterian">Vegeterian</option>
+                <option value="Breakfast">Breakfast</option>
+                <option value="Bagels">Bagels</option>
+                <option value="Burgers">Burgers</option>
+                <option value="Pizzas">Pizzas</option>
+                <option value="Wings">Wings</option>
                 <option value="Pasta">Pasta</option>
-                <option value="Noodles">Noodles</option>
+                <option value="Tramazinnis">Tramazinnis</option>
+                <option value="Grilled">Grilled</option>
+                <option value="Fried">Fried</option>
+                <option value="Wraps">Wraps</option>
+                <option value="Snacks & Sweets">Snacks & Sweets</option>
+                <option value="Beverages">Beverages</option>
               </select>
             </div>
             <div className="add-price flex-col">

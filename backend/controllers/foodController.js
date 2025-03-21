@@ -50,4 +50,22 @@ const removeFood = async (req,res) =>{
     }
 }
 
-export {addFood,listFood,removeFood}
+// Update food item's out of stock status
+const updateFoodStockStatus = async (req, res) => {
+    try {
+        const food = await foodModel.findById(req.body.id);
+        if (!food) {
+            return res.json({ success: false, message: "Food item not found" });
+        }
+
+        food.isOutOfStock = req.body.isOutOfStock; // Update the status
+        await food.save();
+
+        res.json({ success: true, message: "Food item status updated" });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: "Failed to update food item status" });
+    }
+};
+
+export {addFood,listFood,removeFood, updateFoodStockStatus};
