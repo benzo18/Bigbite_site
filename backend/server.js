@@ -40,14 +40,18 @@ app.use("/images", express.static('uploads'));
 app.get("/images/:imageName", (req, res) => {
     const imageName = req.params.imageName;
     const imagePath = path.join(__dirname, 'uploads', imageName);
+    console.log("Image Path:", imagePath); // ADD THIS LINE
 
     fs.readFile(imagePath, (err, imageData) => {
         if (err) {
+            console.error("File Read Error:", err); // ADD THIS LINE
             return res.status(404).send("Image not found");
         }
 
         // Determine the correct Content-Type based on the file extension
+        
         const contentType = mime.getType(imagePath) || 'image/png'; // Default to jpeg if type can't be determined
+        console.log("Content-Type:", contentType); // ADD THIS LINE
         res.contentType(contentType);
         res.send(imageData);
     });
