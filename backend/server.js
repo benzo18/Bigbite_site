@@ -8,7 +8,10 @@ import cartRouter from "./routes/cartRoute.js"
 import orderRouter from "./routes/orderRoute.js"
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
-import orderModel from "./models/orderModel.js"
+import orderModel from "./models/orderModel.js";
+import fs from 'fs'; // Import the 'fs' module
+import path from 'path'; // Import the 'path' module
+import mime from 'mime'; // You'll need to install this: `npm install mime`
 
 
 
@@ -30,11 +33,30 @@ app.use((req, res, next) => {
 connectDB();
 
 //api endpoint
-app.use("/api/food", foodRouter)
-app.use("/images", express.static('uploads'))
-app.use("/api/user", userRouter)
-app.use("/api/cart", cartRouter)
-app.use("/api/order", orderRouter)
+app.use("/api/food", foodRouter);
+
+// Serve images with correct Content-Type
+app.use("/images", express.static('uploads'));
+app.get("/images/:imageName", (req, res) => {
+    const imageName = req.params.imageName;
+    const imagePath = path.join(__dirname, 'uploads', imageName);
+
+    fs.readFile(imagePath, (err, imageData) => {
+        if (err) {
+            return res.status(404).send("Image not found");
+        }
+
+        // Determine the correct Content-Type based on the file extension
+        const contentType = mime.getType(imagePath) || 'image/jpeg'; // Default to jpeg if type can't be determined
+        res.contentType(contentType);
+        res.send(imageData);
+    });
+});
+
+
+app.use("/api/user", userRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/order", orderRouter);
 
 
 
