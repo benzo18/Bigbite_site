@@ -9,7 +9,7 @@ const FoodItem = ({ id, name, price, description, image, isOutOfStock }) => {
     return (
         <div className={`food-item ${isOutOfStock ? 'out-of-stock' : ''}`}>
             <div className="food-item-img-container">
-                <img src={url + "/assets/" + image} alt="" className="food-item-image" />
+            <img src={url + "/images/" + image} alt="" className="food-item-image" />
                 {isOutOfStock && <div className="out-of-stock-overlay">Out of Stock</div>}
                 {!cartItems[id]
                     ? !isOutOfStock // Only show add to cart if not out of stock

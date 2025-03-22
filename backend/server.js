@@ -47,7 +47,7 @@ app.get("/images/:imageName", (req, res) => {
         }
 
         // Determine the correct Content-Type based on the file extension
-        const contentType = mime.getType(imagePath) || 'image/jpeg'; // Default to jpeg if type can't be determined
+        const contentType = mime.getType(imagePath) || 'image/png'; // Default to jpeg if type can't be determined
         res.contentType(contentType);
         res.send(imageData);
     });
