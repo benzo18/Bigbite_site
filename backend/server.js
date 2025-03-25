@@ -40,7 +40,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Serve images with correct Content-Type
-app.use("/images", express.static(path.join(__dirname, 'uploads')));
+app.use("/images", express.static(path.join(__dirname, '../uploads')));
 
 app.get("/images/:imageName", (req, res) => {
     const imageName = req.params.imageName;
