@@ -12,7 +12,7 @@ import orderModel from "./models/orderModel.js";
 import fs from 'fs'; // Import the 'fs' module
 import path from 'path'; // Import the 'path' module
 import mime from 'mime'; // You'll need to install this: `npm install mime`
-
+import { fileURLToPath } from 'url';
 
 
 //app config
@@ -35,28 +35,28 @@ connectDB();
 //api endpoint
 app.use("/api/food", foodRouter);
 
+// __dirname fix
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Serve images with correct Content-Type
-app.use("/images", express.static('uploads'));
+app.use("/images", express.static(path.join(__dirname, 'uploads')));
+
 app.get("/images/:imageName", (req, res) => {
     const imageName = req.params.imageName;
     const imagePath = path.join(__dirname, 'uploads', imageName);
-    console.log("Image Path:", imagePath); // ADD THIS LINE
 
     fs.readFile(imagePath, (err, imageData) => {
         if (err) {
-            console.error("File Read Error:", err); // ADD THIS LINE
+            console.error("File Read Error:", err);
             return res.status(404).send("Image not found");
         }
 
-        // Determine the correct Content-Type based on the file extension
-        
-        const contentType = mime.getType(imagePath) || 'image/png'; // Default to jpeg if type can't be determined
-        console.log("Content-Type:", contentType); // ADD THIS LINE
+        const contentType = mime.getType(imagePath) || 'image/png';
         res.contentType(contentType);
         res.send(imageData);
     });
 });
-
 
 app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
