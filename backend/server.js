@@ -40,22 +40,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Serve images with correct Content-Type
-app.use("/images", express.static(path.join(__dirname, '../uploads')));
-
-app.get("/images/:imageName", (req, res) => {
-    const imageName = req.params.imageName;
+app.use("/images", (req, res, next) => {
+    const imageName = req.path.replace('/images/', ''); // Extract imageName
     const imagePath = path.join(__dirname, 'uploads', imageName);
+    console.log("Image Path:", imagePath);
 
-    fs.readFile(imagePath, (err, imageData) => {
-        if (err) {
-            console.error("File Read Error:", err);
-            return res.status(404).send("Image not found");
-        }
+    // Check if the file exists
+    if (fs.existsSync(imagePath)) {
+        // Determine Content-Type
+        const contentType = mime.getType(imagePath) || 'image/png'; // Default to jpeg if type is unknown
+        console.log("Content-Type:", contentType);
+        res.setHeader('Content-Type', contentType);
 
-        const contentType = mime.getType(imagePath) || 'image/png';
-        res.contentType(contentType);
-        res.send(imageData);
-    });
+        // Serve the file
+        express.static(path.join(__dirname, 'uploads'))(req, res, next);
+    } else {
+        // Handle the case where the file is not found
+        res.status(404).send("Image not found");
+    }
 });
 
 app.use("/api/user", userRouter);
