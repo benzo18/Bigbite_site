@@ -3,18 +3,18 @@ import './FoodItem.css';
 import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
 
-const FoodItem = ({ id, name, price, description, image, isOutOfStock }) => {
+const FoodItem = ({ id, name, price, description, imageFilename, isOutOfStock }) => { // Changed image to imageFilename
     const { cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
 
-    console.log("URL from context:", url); // Add this line
-    console.log("Image filename:", image); // Add this line
-    const imagePath = url + "/images/" + image;
-    console.log("Constructed image path:", imagePath); // Add this line
+    console.log("URL from context:", url);
+    console.log("Image filename:", imageFilename);
+    const imagePath = url + "/images/" + imageFilename; // Use imageFilename
+    console.log("Constructed image path:", imagePath);
 
     return (
         <div className={`food-item ${isOutOfStock ? 'out-of-stock' : ''}`}>
             <div className="food-item-img-container">
-            <img src={url + "/images/" + image} alt="" className="food-item-image" />
+            <img src={url + "/images/" + imageFilename} alt="" className="food-item-image" />  {/* Use imageFilename */}
                 {isOutOfStock && <div className="out-of-stock-overlay">Out of Stock</div>}
                 {!cartItems[id]
                     ? !isOutOfStock // Only show add to cart if not out of stock
