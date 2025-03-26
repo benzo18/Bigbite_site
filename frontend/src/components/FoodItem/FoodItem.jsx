@@ -6,6 +6,11 @@ import { StoreContext } from '../../context/StoreContext';
 const FoodItem = ({ id, name, price, description, image, isOutOfStock }) => {
     const { cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
 
+    console.log("URL from context:", url); // Add this line
+    console.log("Image filename:", image); // Add this line
+    const imagePath = url + "/images/" + image;
+    console.log("Constructed image path:", imagePath); // Add this line
+
     return (
         <div className={`food-item ${isOutOfStock ? 'out-of-stock' : ''}`}>
             <div className="food-item-img-container">

@@ -40,22 +40,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Serve images with correct Content-Type
+app.use("/images", express.static(path.join(__dirname, 'uploads')));
+
 app.use("/images", (req, res, next) => {
-    const imageName = req.path.replace('/images/', ''); // Extract imageName
+    const imageName = req.path.replace('/images/', '');
     const imagePath = path.join(__dirname, 'uploads', imageName);
-    console.log("Image Path:", imagePath);
 
-    // Check if the file exists
     if (fs.existsSync(imagePath)) {
-        // Determine Content-Type
-        const contentType = mime.getType(imagePath) || 'image/png'; // Default to jpeg if type is unknown
-        console.log("Content-Type:", contentType);
+        const contentType = mime.getType(imagePath) || 'image/png';
         res.setHeader('Content-Type', contentType);
-
-        // Serve the file
-        express.static(path.join(__dirname, 'uploads'))(req, res, next);
+        res.sendFile(imagePath);
     } else {
-        // Handle the case where the file is not found
         res.status(404).send("Image not found");
     }
 });
