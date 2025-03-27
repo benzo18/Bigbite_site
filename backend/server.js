@@ -39,21 +39,8 @@ app.use("/api/food", foodRouter);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve images with correct Content-Type
-app.use("/images", express.static(path.join(__dirname, 'uploads')));
-
-app.use("/images", (req, res, next) => {
-    const imageName = req.path.replace('/images/', '');
-    const imagePath = path.join(__dirname, 'uploads', imageName);
-
-    if (fs.existsSync(imagePath)) {
-        const contentType = mime.getType(imagePath) || 'image/png';
-        res.setHeader('Content-Type', contentType);
-        res.sendFile(imagePath);
-    } else {
-        res.status(404).send("Image not found");
-    }
-});
+// Serve static files from the 'uploads' directory
+app.use("/images", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
