@@ -6,8 +6,7 @@ import { StoreContext } from '../../context/StoreContext';
 const FoodItem = ({ id, name, price, description, image, isOutOfStock }) => {
     const { cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
 
-    // Construct the full image URL
-    const imageUrl = `${url}/images/${image}`;
+    const imageUrl = `https://${process.env.REACT_APP_S3_BUCKET}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${image}`;
 
     // *** CRITICAL DEBUGGING ***
     console.log("FoodItem - image prop:", image);

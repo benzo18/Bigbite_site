@@ -74,7 +74,7 @@ const List = ({ url }) => {
                     list.map((item, index) => {
                         return (
                             <div key={index} className="list-table-format">
-                                <img src={`${url}/images/` + item.image} alt="" />
+                                <img src={`https://${process.env.REACT_APP_S3_BUCKET}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${item.image}`} alt="" />
                                 <p>{item.name}</p>
                                 <p>{item.category}</p>
                                 <p>{item.price}</p>

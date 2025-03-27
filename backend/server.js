@@ -35,6 +35,13 @@ app.use((req, res, next) => {
 //db connection
 connectDB();
 
+// Add this temporarily to server.js
+const s3 = new AWS.S3();
+s3.listBuckets((err, data) => {
+  if (err) console.error("S3 Connection Error:", err);
+  else console.log("S3 Buckets:", data.Buckets);
+});
+
 //api endpoint
 app.use("/api/food", foodRouter);
 
