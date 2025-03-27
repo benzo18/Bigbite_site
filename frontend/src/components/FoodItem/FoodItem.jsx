@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect  } from 'react';
 import './FoodItem.css';
 import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
@@ -13,22 +13,18 @@ const FoodItem = ({ id, name, price, description, image, isOutOfStock }) => {
     console.log("FoodItem - image prop:", image);
     console.log("FoodItem - Constructed URL:", imageUrl);
 
-    // Handle image loading errors
-    const handleImageError = (e) => {
-        console.error(`Failed to load image: ${imageUrl}`);
-        e.target.onerror = null; // Prevent infinite loop
-        e.target.src = `https://placehold.co/400x300/black/white/png?text=${encodeURIComponent(name)}&font=roboto`
-        e.target.style.opacity = '0.8';
-        e.target.style.border = '1px solid #eee';
-        e.target.style.objectFit = 'contain';
-    };
-
+    // Debugging (optional)
     useEffect(() => {
         console.log("Current AWS Config:", {
             bucket: process.env.REACT_APP_S3_BUCKET,
             region: process.env.REACT_APP_AWS_REGION
         });
     }, []);
+
+    const handleImageError = (e) => {
+        e.target.onerror = null;
+        e.target.src = `https://placehold.co/400x300?text=${encodeURIComponent(name)}`;
+    };
 
     return (
         <div className={`food-item ${isOutOfStock ? 'out-of-stock' : ''}`}>
