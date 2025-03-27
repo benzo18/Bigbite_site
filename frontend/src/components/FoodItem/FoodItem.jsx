@@ -8,7 +8,7 @@ const FoodItem = ({ id, name, price, description, imageFilename, isOutOfStock })
 
     console.log("URL from context:", url);
     console.log("Image filename:", imageFilename);
-    const imagePath = url + "/images/" + imageFilename; // Use imageFilename
+    const imagePath = url + "/uploads/" + imageFilename; // Use imageFilename
     console.log("Constructed image path:", imagePath);
 
     return (
