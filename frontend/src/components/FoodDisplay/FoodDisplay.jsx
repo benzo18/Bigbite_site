@@ -15,13 +15,13 @@ const FoodDisplay = ({ category }) => {
         {food_list.map((item, index) => {
           if (category === "All" || category === item.category) {
             return < FoodItem
-              key={index}
-              id={item._id}
-              name={item.name}
-              description={item.description}
-              price={item.price}
-              imageFilename={item.imageFilename}  // Make sure you are passing this!
-              isOutOfStock={item.isOutOfStock}  // Pass the isOutOfStock prop
+            key={index}
+            id={item._id}
+            name={item.name}
+            description={item.description}
+            price={item.price}
+            image={item.image}  // Use 'image' consistently
+            isOutOfStock={item.isOutOfStock}  // Pass the isOutOfStock prop
               />
           }
         })}
