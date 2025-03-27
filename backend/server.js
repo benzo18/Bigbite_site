@@ -36,16 +36,27 @@ app.use((req, res, next) => {
 //db connection
 connectDB();
 
-// Add this temporarily to server.js
-app.get('/test-s3', (req, res) => {
-    const s3 = new AWS.S3();
-    s3.listBuckets((err, data) => {
-      if (err) {
-        console.error("S3 Error:", err);
-        return res.status(500).send("S3 Connection Failed");
-      }
-      res.json({ buckets: data.Buckets });
-    });
+// Test S3 Connection
+app.get('/test-s3', async (req, res) => {
+    try {
+      const s3 = new AWS.S3({
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_KEY,
+        region: process.env.AWS_REGION
+      });
+      
+      const data = await s3.listBuckets().promise();
+      res.json({ 
+        status: "Connected",
+        buckets: data.Buckets.map(b => b.Name) 
+      });
+    } catch (error) {
+      console.error("S3 Test Failed:", error);
+      res.status(500).json({ 
+        error: "S3 Connection Failed",
+        message: error.message 
+      });
+    }
   });
 
 //api endpoint

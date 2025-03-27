@@ -74,7 +74,13 @@ const List = ({ url }) => {
                     list.map((item, index) => {
                         return (
                             <div key={index} className="list-table-format">
-                                <img src={`https://${process.env.REACT_APP_S3_BUCKET}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${item.image}`} alt="" />
+                                <img
+                                    src={`https://bigbite-food-images.s3.eu-north-1.amazonaws.com/${item.image}`}
+                                    alt={item.name}
+                                    onError={(e) => {
+                                        e.target.src = `https://placehold.co/300x200?text=${encodeURIComponent(item.name)}`;
+                                    }}
+                                />
                                 <p>{item.name}</p>
                                 <p>{item.category}</p>
                                 <p>{item.price}</p>
