@@ -7,7 +7,7 @@ const FoodItem = ({ id, name, price, description, image, isOutOfStock }) => {
     const { cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
 
     // With this fallback (temporarily):
-    const imageUrl = `https://bigbite-food-images.s3.eu-north-1.amazonaws.com/${image}`;
+    const imageUrl = `https://bigbite-food-images.s3.eu-north-1.amazonaws.com/uploads/uploads/${image}`;
 
     // *** CRITICAL DEBUGGING ***
     console.log("FoodItem - image prop:", image);

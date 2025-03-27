@@ -75,7 +75,7 @@ const List = ({ url }) => {
                         return (
                             <div key={index} className="list-table-format">
                                 <img
-                                    src={`https://bigbite-food-images.s3.eu-north-1.amazonaws.com/${item.image}`}
+                                    src={`https://bigbite-food-images.s3.eu-north-1.amazonaws.com/uploads/uploads/${image}`}
                                     alt={item.name}
                                     onError={(e) => {
                                         e.target.src = `https://placehold.co/300x200?text=${encodeURIComponent(item.name)}`;
