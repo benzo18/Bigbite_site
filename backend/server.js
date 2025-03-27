@@ -9,10 +9,13 @@ import orderRouter from "./routes/orderRoute.js"
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import orderModel from "./models/orderModel.js";
-import fs from 'fs'; // Import the 'fs' module
-import path from 'path'; // Import the 'path' module
 import mime from 'mime'; // You'll need to install this: `npm install mime`
+import fs from 'fs';
+import path from 'path';
 import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 //app config
@@ -35,30 +38,31 @@ connectDB();
 //api endpoint
 app.use("/api/food", foodRouter);
 
-// __dirname fix
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// Serve images with correct Content-Type
-app.use("/images", (req, res, next) => {
-    const imageName = req.path.replace('/images/', ''); // Extract imageName
-    const imagePath = path.join(__dirname, 'uploads', imageName);
-    console.log("Image Path:", imagePath);
 
-    // Check if the file exists
-    if (fs.existsSync(imagePath)) {
-        // Determine Content-Type
-        const contentType = mime.getType(imagePath) || 'image/png'; // Default to jpeg if type is unknown
-        console.log("Content-Type:", contentType);
-        res.setHeader('Content-Type', contentType);
-
-        // Serve the file
-        express.static(path.join(__dirname, 'uploads'))(req, res, next);
+// Ensure uploads directory exists
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
+  }
+  
+  // Image serving with fallback
+  app.use('/images', express.static('uploads'), (req, res, next) => {
+    const requestedImage = req.path.replace('/', '');
+    if (!fs.existsSync(path.join(__dirname, 'uploads', requestedImage))) {
+      // Try to restore from backup
+      const backupPath = path.join(__dirname, 'backup_uploads', requestedImage);
+      if (fs.existsSync(backupPath)) {
+        fs.copyFileSync(backupPath, path.join(__dirname, 'uploads', requestedImage));
+        console.log(`Restored missing image: ${requestedImage}`);
+        return res.sendFile(path.join(__dirname, 'uploads', requestedImage));
+      }
+      // Ultimate fallback
+      console.warn(`Image not found: ${requestedImage}`);
+      res.status(404).send('Image not found');
     } else {
-        // Handle the case where the file is not found
-        res.status(404).send("Image not found");
+      next();
     }
-});
+  });
 
 app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
