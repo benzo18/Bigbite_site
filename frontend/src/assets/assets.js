@@ -18,7 +18,7 @@ import tramezzini_menu from './tramezzini_menu.png'
 import wings_menu from './wings_menu.png'
 import wrap_menu from './wrap_menu.png'
 
-/*
+
 import fivestar from './fivestar.png'
 import lemontwistbuddy from './lemontwistbuddy.png'
 import Bar_one from './Bar_one.png'
@@ -109,7 +109,7 @@ import saucyBeefWrap from './saucyBeefWrap.png'
 import spicyNachoBeefPizza from './spicyNachoBeefPizza.png'
 import veg_tram from './veg_tram.png'
 import vegan_chicken_wrap from './vegan_chicken_wrap.png'
-*/
+
 
 import add_icon_white from './add_icon_white.png'
 import add_icon_green from './add_icon_green.png'
@@ -205,7 +205,7 @@ export const menu_list = [
            menu_name: "Snacks & Sweets",
            menu_image: snacksNsweets_menu
        }]
-/*
+
 export const food_list = [
     {
                _id: "1",
@@ -912,4 +912,4 @@ export const food_list = [
                 category: "Snacks & Sweets"
                },
 ]
-*/       
+     
