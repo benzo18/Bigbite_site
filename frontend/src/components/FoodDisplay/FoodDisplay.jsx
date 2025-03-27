@@ -20,7 +20,6 @@ const FoodDisplay = ({ category }) => {
               name={item.name}
               description={item.description}
               price={item.price}
-              image={item.image}
               imageFilename={item.imageFilename}  // Make sure you are passing this!
               isOutOfStock={item.isOutOfStock}  // Pass the isOutOfStock prop
               />
