@@ -3,6 +3,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // Configure AWS S3
 const s3Client = new S3Client({
