@@ -7,7 +7,7 @@ const FoodItem = ({ id, name, price, description, imageFilename, isOutOfStock })
     const { cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
 
     // Construct the full image URL
-  const imageUrl = `${url}/images/${image}`;
+  const imageUrl = `${url}/images/${imageFilename}`;
 
     return (
         <div className={`food-item ${isOutOfStock ? 'out-of-stock' : ''}`}>
