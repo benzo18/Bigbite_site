@@ -1,14 +1,21 @@
 import foodModel from "../models/foodModel.js";
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 // Configure AWS S3
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_KEY,
-  region: process.env.AWS_REGION || 'eu-north-1'
+const s3Client = new S3Client({
+    region: process.env.AWS_REGION || "eu-north-1",
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_KEY,
+    },
 });
+
+// Constants
+const S3_BUCKET = process.env.S3_BUCKET || 'bigbite-food-images';
+const IMAGE_BASE_PATH = 'foods/'; // Changed from 'uploads/uploads/' to match your upload path
 
 // __dirname fix
 const __filename = fileURLToPath(import.meta.url);
@@ -21,16 +28,20 @@ const addFood = async (req, res) => {
             return res.json({ success: false, message: "No file uploaded" });
         }
 
+        // Generate unique filename
+        const fileName = `${Date.now()}_${req.file.originalname.replace(/\s+/g, '_')}`;
+        const s3Key = IMAGE_BASE_PATH + fileName;
+
         // Upload to S3
-        const s3Params = {
-            Bucket: process.env.S3_BUCKET || 'bigbite-food-images',
-            Key: `foods/${Date.now()}_${req.file.originalname.replace(/\s+/g, '_')}`, // Replace spaces with underscores
+        const uploadParams = {
+            Bucket: S3_BUCKET,
+            Key: s3Key,
             Body: req.file.buffer,
             ContentType: req.file.mimetype,
-            ACL: 'public-read' // Make the file publicly accessible
+            ACL: 'public-read'
         };
 
-        const s3Response = await s3.upload(s3Params).promise();
+        await s3Client.send(new PutObjectCommand(uploadParams));
 
         // Save to MongoDB
         const food = new foodModel({
@@ -38,8 +49,8 @@ const addFood = async (req, res) => {
             description: req.body.description,
             price: req.body.price,
             category: req.body.category,
-            image: s3Response.Key, // Store the S3 object key
-            imageFilename: s3Response.Key // For consistency
+            image: s3Key,
+            imageFilename: fileName
         });
 
         await food.save();
@@ -59,10 +70,23 @@ const listFood = async (req, res) => {
     try {
         const foods = await foodModel.find({});
         
-        // Optionally: Add full S3 URL to each food item
-        const foodsWithUrls = foods.map(food => ({
-            ...food._doc,
-            imageUrl: `https://${process.env.S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${food.image}`
+        // Generate signed URLs for each image
+        const foodsWithUrls = await Promise.all(foods.map(async (food) => {
+            try {
+                const imageUrl = `https://${S3_BUCKET}.s3.${process.env.AWS_REGION || 'eu-north-1'}.amazonaws.com/${food.image}`;
+                
+                return {
+                    ...food._doc,
+                    imageUrl: imageUrl
+                };
+            } catch (error) {
+                console.error(`Error generating URL for food ${food._id}:`, error);
+                return {
+                    ...food._doc,
+                    imageUrl: null,
+                    imageError: "Could not generate image URL"
+                };
+            }
         }));
         
         res.json({ success: true, data: foodsWithUrls });
@@ -85,10 +109,10 @@ const removeFood = async (req, res) => {
         }
 
         // Delete from S3
-        await s3.deleteObject({
-            Bucket: process.env.S3_BUCKET,
+        await s3Client.send(new DeleteObjectCommand({
+            Bucket: S3_BUCKET,
             Key: food.image
-        }).promise();
+        }));
 
         // Delete from MongoDB
         await foodModel.findByIdAndDelete(req.body.id);
