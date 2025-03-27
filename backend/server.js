@@ -13,6 +13,7 @@ import mime from 'mime'; // You'll need to install this: `npm install mime`
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import AWS from 'aws-sdk';  // Add this with your other imports
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,11 +37,16 @@ app.use((req, res, next) => {
 connectDB();
 
 // Add this temporarily to server.js
-const s3 = new AWS.S3();
-s3.listBuckets((err, data) => {
-  if (err) console.error("S3 Connection Error:", err);
-  else console.log("S3 Buckets:", data.Buckets);
-});
+app.get('/test-s3', (req, res) => {
+    const s3 = new AWS.S3();
+    s3.listBuckets((err, data) => {
+      if (err) {
+        console.error("S3 Error:", err);
+        return res.status(500).send("S3 Connection Failed");
+      }
+      res.json({ buckets: data.Buckets });
+    });
+  });
 
 //api endpoint
 app.use("/api/food", foodRouter);
