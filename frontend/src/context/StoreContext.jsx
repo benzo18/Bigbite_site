@@ -8,6 +8,7 @@ const StoreContextProvider = (props) => {
   const url = "https://bigbite-site-backend.onrender.com";
   const [token, setToken] = useState("");
   const [food_list, setFoodList] = useState([]);
+  CDN_URL = process.env.VITE_CDN_URL;
 
   const addToCart = async (itemId,userId) => {
     if (!cartItems[itemId]) {

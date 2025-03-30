@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import './List.css';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { StoreContext } from '../../context/StoreContext'; // Import StoreContext
+import { StoreContext } from '../../../../frontend/src/context/StoreContext'; // Import StoreContext
 
 const List = ({ url }) => {
     const [list, setList] = useState();
