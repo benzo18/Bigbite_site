@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import './List.css';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { StoreContext } from '../../context/StoreContext'; // Import StoreContext
 
 const List = ({ url }) => {
     const [list, setList] = useState();
+    const { CDN_URL } = useContext(StoreContext); // Access CDN_URL from context
 
     const fetchList = async () => {
         try {
@@ -72,10 +74,13 @@ const List = ({ url }) => {
                 {/* Conditional Rendering Here */}
                 {list && list.length > 0 ? (
                     list.map((item, index) => {
+                        // Construct image URL using CDN if available, else fallback to S3
+                        const imageUrl = CDN_URL ? `${CDN_URL}/${item.image}` : `https://bigbite-food-images.s3.eu-north-1.amazonaws.com/uploads/uploads/${item.image}`;
+
                         return (
                             <div key={index} className="list-table-format">
                                 <img
-                                    src={`https://bigbite-food-images.s3.eu-north-1.amazonaws.com/uploads/uploads/${image}`}
+                                    src={imageUrl}
                                     alt={item.name}
                                     onError={(e) => {
                                         e.target.src = `https://placehold.co/300x200?text=${encodeURIComponent(item.name)}`;

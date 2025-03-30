@@ -36,58 +36,31 @@ app.use((req, res, next) => {
 //db connection
 connectDB();
 
-// Test S3 Connection
+// Test S3 Connection (Moved to the top for clarity)
 app.get('/test-s3', async (req, res) => {
-    try {
-      const s3 = new AWS.S3({
-        accessKeyId: process.env.AWS_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_SECRET_KEY,
-        region: process.env.AWS_REGION
-      });
-      
-      const data = await s3.listBuckets().promise();
-      res.json({ 
-        status: "Connected",
-        buckets: data.Buckets.map(b => b.Name) 
-      });
-    } catch (error) {
-      console.error("S3 Test Failed:", error);
-      res.status(500).json({ 
-        error: "S3 Connection Failed",
-        message: error.message 
-      });
-    }
-  });
+  try {
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_KEY,
+      region: process.env.AWS_REGION
+    });
+    
+    const data = await s3.listBuckets().promise();
+    res.json({ 
+      status: "Connected",
+      buckets: data.Buckets.map(b => b.Name) 
+    });
+  } catch (error) {
+    console.error("S3 Test Failed:", error);
+    res.status(500).json({ 
+      error: "S3 Connection Failed",
+      message: error.message 
+    });
+  }
+});
 
 //api endpoint
 app.use("/api/food", foodRouter);
-
-
-
-// Ensure uploads directory exists
-if (!fs.existsSync('uploads')) {
-    fs.mkdirSync('uploads');
-  }
-  
-  // Image serving with fallback
-  app.use('/images', express.static('uploads'), (req, res, next) => {
-    const requestedImage = req.path.replace('/', '');
-    if (!fs.existsSync(path.join(__dirname, 'uploads', requestedImage))) {
-      // Try to restore from backup
-      const backupPath = path.join(__dirname, 'backup_uploads', requestedImage);
-      if (fs.existsSync(backupPath)) {
-        fs.copyFileSync(backupPath, path.join(__dirname, 'uploads', requestedImage));
-        console.log(`Restored missing image: ${requestedImage}`);
-        return res.sendFile(path.join(__dirname, 'uploads', requestedImage));
-      }
-      // Ultimate fallback
-      console.warn(`Image not found: ${requestedImage}`);
-      res.status(404).send('Image not found');
-    } else {
-      next();
-    }
-  });
-
 app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
@@ -163,6 +136,31 @@ app.post("/yoco-webhook", async (req, res) => {
         res.status(500).send("Error processing webhook");
     }
 });
+
+// Ensure uploads directory exists
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
+
+// Image serving with fallback
+app.use('/images', express.static('uploads'), (req, res, next) => {
+  const requestedImage = req.path.replace('/', '');
+  if (!fs.existsSync(path.join(__dirname, 'uploads', requestedImage))) {
+    // Try to restore from backup
+    const backupPath = path.join(__dirname, 'backup_uploads', requestedImage);
+    if (fs.existsSync(backupPath)) {
+      fs.copyFileSync(backupPath, path.join(__dirname, 'uploads', requestedImage));
+      console.log(`Restored missing image: ${requestedImage}`);
+      return res.sendFile(path.join(__dirname, 'uploads', requestedImage));
+    }
+    // Ultimate fallback
+    console.warn(`Image not found: ${requestedImage}`);
+    res.status(404).send('Image not found');
+  } else {
+    next();
+  }
+});
+
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`)

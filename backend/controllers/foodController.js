@@ -1,26 +1,17 @@
 import foodModel from "../models/foodModel.js";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-
-// Configure AWS S3
-const s3Client = new S3Client({
-    region: process.env.AWS_REGION || "eu-north-1",
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_SECRET_KEY,
-    },
-});
-
-// Constants
-const S3_BUCKET = process.env.S3_BUCKET || 'bigbite-food-images';
-const IMAGE_BASE_PATH = 'foods/'; // Changed from 'uploads/uploads/' to match your upload path
+import s3Client from '../config/s3.js';
 
 // __dirname fix
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const S3_BUCKET = process.env.S3_BUCKET || 'bigbite-food-images';
+const IMAGE_BASE_PATH = ''; // Changed to an empty string
 
 // Add food item
 const addFood = async (req, res) => {
@@ -31,7 +22,7 @@ const addFood = async (req, res) => {
 
         // Generate unique filename
         const fileName = `${Date.now()}_${req.file.originalname.replace(/\s+/g, '_')}`;
-        const s3Key = IMAGE_BASE_PATH + fileName;
+        const s3Key = IMAGE_BASE_PATH + fileName; // Corrected path
 
         // Upload to S3
         const uploadParams = {

@@ -1,29 +1,26 @@
-import React, { useContext, useEffect  } from 'react';
+import React, { useContext, useEffect } from 'react';
 import './FoodItem.css';
 import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
 
 const FoodItem = ({ id, name, price, description, image, isOutOfStock }) => {
-    const { cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
+    const { cartItems, addToCart, removeFromCart } = useContext(StoreContext);
+    const CDN_URL = import.meta.env.VITE_CDN_URL; // Get CDN URL from env
 
-    // With this fallback (temporarily):
-    const imageUrl = `https://bigbite-food-images.s3.eu-north-1.amazonaws.com/uploads/uploads/${image}`;
-
-    // *** CRITICAL DEBUGGING ***
-    console.log("FoodItem - image prop:", image);
-    console.log("FoodItem - Constructed URL:", imageUrl);
+    // Construct the full image URL
+    const imageUrl = CDN_URL ? `${CDN_URL}/${image}` : `https://bigbite-food-images.s3.eu-north-1.amazonaws.com/uploads/uploads/${image}`;
 
     // Debugging (optional)
     useEffect(() => {
         console.log("Current AWS Config:", {
             bucket: process.env.REACT_APP_S3_BUCKET,
-            region: process.env.REACT_APP_AWS_REGION
+            region: process.env.AWS_REGION
         });
     }, []);
 
     const handleImageError = (e) => {
         e.target.onerror = null;
-        e.target.src = `https://placehold.co/400x300?text=${encodeURIComponent(name)}`;
+        e.target.src = CDN_URL ? `${CDN_URL}/${image}` : `https://placehold.co/400x300?text=${encodeURIComponent(name)}`;
     };
 
     return (
@@ -32,9 +29,7 @@ const FoodItem = ({ id, name, price, description, image, isOutOfStock }) => {
                 <img
                     src={imageUrl}
                     alt={name}
-                    onError={(e) => {
-                        e.target.src = 'https://placehold.co/300x200?text=Image+Missing';
-                    }}
+                    onError={handleImageError}
                 />
                 {!cartItems[id] ? (
                     !isOutOfStock ? (
@@ -44,22 +39,22 @@ const FoodItem = ({ id, name, price, description, image, isOutOfStock }) => {
                             src={assets.add_icon_white}
                             alt='Add to cart'
                         />
-                    ) : (
-                        <div className='food-item-counter'>
-                            <img
-                                onClick={() => removeFromCart(id)}
-                                src={assets.remove_icon_red}
-                                alt='Remove item'
-                            />
-                            <p>{cartItems[id]}</p>
-                            <img
-                                onClick={() => addToCart(id)}
-                                src={assets.add_icon_green}
-                                alt='Add item'
-                            />
-                        </div>
-                    )
-                ) : null}
+                    ) : null
+                ) : (
+                    <div className='food-item-counter'>
+                        <img
+                            onClick={() => removeFromCart(id)}
+                            src={assets.remove_icon_red}
+                            alt='Remove item'
+                        />
+                        <p>{cartItems[id]}</p>
+                        <img
+                            onClick={() => addToCart(id)}
+                            src={assets.add_icon_green}
+                            alt='Add item'
+                        />
+                    </div>
+                )}
             </div>
             <div className="food-item-info">
                 <div className="food-item-name-rating">
